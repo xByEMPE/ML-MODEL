@@ -8,7 +8,7 @@ Este repositorio contiene un proyecto basado en PyTorch y TorchVision para entre
 
 - **Dataset Personalizado:**  
   La clase `WindTurbineDamageDataset` se encarga de cargar las imágenes y sus correspondientes anotaciones (en formato JSON). Se espera que la estructura del dataset sea la siguiente:
-  *dataset_root/ images/ # Imágenes en formato .png, .jpg o .jpeg annotations/ # Archivos JSON con las anotaciones (el mismo nombre base que la imagen)
+  ```*dataset_root/ images/ # Imágenes en formato .png, .jpg o .jpeg annotations/ # Archivos JSON con las anotaciones (el mismo nombre base que la imagen)```
 
   
 
