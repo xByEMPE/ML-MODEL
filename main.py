@@ -78,21 +78,30 @@ class WindTurbineDamageDataset(torch.utils.data.Dataset):
             except Exception as e:
                 print(f"Error procesando los datos de {annot_path}: {e}")
                 return None, None
+            
+            #Validacion de cajas vacias y conversion a tensores con la forma correcta
+
+            if len(boxes) == 0:
+                boxes = torch.empty((0, 4), dtype=torch.float32)
+                labels = torch.empty((0,), dtype=torch.int64)
+            else:
+                boxes = torch.as_tensor(boxes, dtype=torch.float32)
+                labels = torch.as_tensor(labels, dtype=torch.int64)
+
+            
 
             # Convertir a tensores y construir target
             try:
-                boxes = torch.as_tensor(boxes, dtype=torch.float32)
-                labels = torch.as_tensor(labels, dtype=torch.int64)
                 image_id = torch.tensor([idx])
                 area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
                 iscrowd = torch.zeros((len(boxes),), dtype=torch.int64)
                 target = {
-                    "boxes": boxes,
-                    "labels": labels,
-                    "image_id": image_id,
-                    "area": area,
-                    "iscrowd": iscrowd
-                }
+                     "boxes": boxes,
+                     "labels": labels,
+                     "image_id": image_id,
+                     "area": area,
+                     "iscrowd": iscrowd
+                     }
             except Exception as e:
                 print(f"Error creando el target para {img_path}: {e}")
                 return None, None
@@ -182,7 +191,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=10)
 # --- 4. Bucle Principal de Entrenamiento ---
 def training_main():
     # Ruta raíz de tu dataset de entrenamiento
-    dataset_root = "C:/VND_AI/data/no_labels"  # Asegurarse de tener subcarpetas 'images' y 'annotations' para evitar errores
+    dataset_root = "C:/vnd_ia/ML-MODEL/no_labels"  # Asegurarse de tener subcarpetas 'images' y 'annotations' para evitar errores
     
     dataset = WindTurbineDamageDataset(dataset_root, transforms=get_transform(train=True))
     dataset_test = WindTurbineDamageDataset(dataset_root, transforms=get_transform(train=False))
@@ -210,7 +219,7 @@ def training_main():
     print("Modelo guardado.")
 
 # --- 5. Función de Inferencia y Guardado de Imágenes Procesadas ---
-def run_inference(model, device, input_root, output_root, detection_threshold=0.5):  #se puede cambiar el threshold para que detecte mas o menos daños
+def run_inference(model, device, input_root, output_root, detection_threshold=0.8):  #se puede cambiar el threshold para que detecte mas o menos daños
     """
     Recorre recursivamente las imágenes en input_root, ejecuta el modelo para detectar daños,
     y si se encuentran detecciones (con score > detection_threshold), se dibujan las cajas y se
@@ -267,7 +276,7 @@ if __name__ == "__main__":
     
     # Para la inferencia, se asume que ya tienes un modelo entrenado.
     # Carga el modelo entrenado:
-    # device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu') solo si existe gpu disponible
+     #device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu') #solo si existe gpu disponible
      device = torch.device('cpu')
      model = get_model(num_classes)
      model_path = "fasterrcnn_wind_turbine_damage.pth"
@@ -281,7 +290,7 @@ if __name__ == "__main__":
      model.to(device)
     
     # Definir la ruta de la inspección con la estructura original y la ruta de salida
-     inspection_input_root = "data/test/A5.02"  # Carpeta con las 3 subcarpetas de las palas para la parte de analisis, esto debe cambiar cada que acabe de analizar una pala
+     inspection_input_root = "C:/vnd_ia/ML-MODEL/B6"  # Carpeta con las 3 subcarpetas de las palas para la parte de analisis, esto debe cambiar cada que acabe de analizar una pala
      output_root = os.path.join(inspection_input_root, "image_output")
     
-     run_inference(model, device, inspection_input_root, output_root, detection_threshold=0.5)
+     run_inference(model, device, inspection_input_root, output_root, detection_threshold=0.4)
