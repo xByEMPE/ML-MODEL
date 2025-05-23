@@ -157,7 +157,7 @@ def get_model(num_classes):
     weights = FasterRCNN_ResNet50_FPN_Weights.DEFAULT
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=weights)
 
-    #Reempla cabeza de clasificación para que se adapte a nuestro número de clases
+    #Reemplaza la cabeza de clasificación para que se adapte a nuestro número de clases
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
     return model
@@ -191,7 +191,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=10)
 # --- 4. Bucle Principal de Entrenamiento ---
 def training_main():
     # Ruta raíz de tu dataset de entrenamiento
-    dataset_root = "C:/vnd_ia/ML-MODEL/no_labels"  # Asegurarse de tener subcarpetas 'images' y 'annotations' para evitar errores
+    dataset_root = "ruta a tus datasets"  # Asegurarse de tener subcarpetas 'images' y 'annotations' para evitar errores
     
     dataset = WindTurbineDamageDataset(dataset_root, transforms=get_transform(train=True))
     dataset_test = WindTurbineDamageDataset(dataset_root, transforms=get_transform(train=False))
@@ -202,7 +202,7 @@ def training_main():
     data_loader_test = torch.utils.data.DataLoader(
         dataset_test, batch_size=1, shuffle=False, num_workers=1, collate_fn=collate_fn)
     
-    # Forzamos la ejecución en CPU
+    # Forzamos la ejecución en CPU  (En caso de contar con GPU ignorar esto)
     device = torch.device('cpu')
     model = get_model(num_classes)
     model.to(device)
@@ -274,7 +274,7 @@ if __name__ == "__main__":
     # Para entrenar el modelo, descomenta la siguiente línea:
     # training_main()
     
-    # Para la inferencia, se asume que ya tienes un modelo entrenado.
+    # Para la inferencia, se asume que ya se tiene un modelo entrenado.
     # Carga el modelo entrenado:
      #device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu') #solo si existe gpu disponible
      device = torch.device('cpu')
@@ -290,7 +290,7 @@ if __name__ == "__main__":
      model.to(device)
     
     # Definir la ruta de la inspección con la estructura original y la ruta de salida
-     inspection_input_root = "C:/vnd_ia/ML-MODEL/B6"  # Carpeta con las 3 subcarpetas de las palas para la parte de analisis, esto debe cambiar cada que acabe de analizar una pala
+     inspection_input_root = "ruta a tus imágenes"  # Carpeta con las 3 subcarpetas de las palas para la parte de analisis, esto debe cambiar cada que acabe de analizar una pala
      output_root = os.path.join(inspection_input_root, "image_output")
     
      run_inference(model, device, inspection_input_root, output_root, detection_threshold=0.4)
